@@ -11,7 +11,10 @@ import org.slf4j.LoggerFactory;
 
 import java.time.LocalDateTime;
 import java.util.List;
-
+/**
+ * Repository to handle message-related database operations.
+ * Author: Asad Ali
+ */
 @ApplicationScoped
 public class MessageRepository {
 
@@ -19,14 +22,18 @@ public class MessageRepository {
 
     @PersistenceContext
     EntityManager em;
-
+    /**
+     * Saves a message entity to the database.
+     */
     @Transactional
     public void saveMessage(MessageEntity message) {
         logger.info("Message :{}", message.toString());
         em.persist(message);
         em.flush();
     }
-
+    /**
+     * Retrieves the message history, ordered by timestamp.
+     */
     public List<MessageEntity> getMessageHistory(int limit) {
         TypedQuery<MessageEntity> query = em.createQuery("SELECT m FROM MessageEntity m ORDER BY m.timestamp DESC", MessageEntity.class);
         query.setMaxResults(limit);
@@ -44,7 +51,9 @@ public class MessageRepository {
         }
         return message;
     }
-
+    /**
+     * Retrieves messages between two users, with pagination.
+     */
     @Transactional
     public List<MessageEntity> getMessagesBetweenUsers(String user1, String user2, int page, int size) {
         return em.createQuery("SELECT m FROM MessageEntity m WHERE (m.sender = :user1 AND m.receiver = :user2) OR (m.sender = :user2 AND m.receiver = :user1) ORDER BY m.timestamp DESC", MessageEntity.class)
@@ -54,7 +63,9 @@ public class MessageRepository {
                 .setMaxResults(size)
                 .getResultList();
     }
-
+    /**
+     * Retrieves messages in a group, with pagination.
+     */
     @Transactional
     public List<MessageEntity> getMessagesInGroup(Long groupId, int page, int size) {
         return em.createQuery("SELECT m FROM MessageEntity m WHERE m.groupId = :groupId ORDER BY m.timestamp DESC", MessageEntity.class)

@@ -10,7 +10,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.LocalDateTime;
-
+/**
+ * Service to handle user authentication and token management.
+ * Author: Asad Ali
+ */
 @ApplicationScoped
 public class AuthService {
 
@@ -19,13 +22,17 @@ public class AuthService {
 
     @Inject
     UserRepository userRepository;
-
+    /**
+     * Authenticates a user by username and password.
+     */
     public UserEntity loginUser(String username, String password) {
         return userRepository.findUserByUsername(username)
                 .filter(user -> user.getPassword().equals(password))
                 .orElse(null);
     }
-
+    /**
+     * Handles guest login based on device ID.
+     */
     public UserEntity guestLogin(String deviceId) {
         return userRepository.findGuestByDeviceId(deviceId)
                 .orElseGet(() -> {
@@ -39,7 +46,9 @@ public class AuthService {
                 });
     }
 
-    // Generate token using encryption
+    /**
+     * Generates a token using encryption for a user.
+     */
     public String generateToken(UserEntity user) {
         try {
             // Create a token with userId and timestamp for uniqueness
@@ -58,7 +67,9 @@ public class AuthService {
         }
     }
 
-    // Verify the token by decrypting it
+    /**
+     * Verifies a token by decrypting it and retrieving the user.
+     */
     public UserEntity verifyToken(String token) {
         try {
             // Decrypt the token

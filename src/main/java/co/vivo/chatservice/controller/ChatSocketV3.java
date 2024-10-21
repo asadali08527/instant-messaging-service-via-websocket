@@ -23,7 +23,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-@ServerEndpoint("/chat/{userId}")
+@ServerEndpoint("/v3/chat/{userId}")
 @ApplicationScoped
 public class ChatSocketV3 {
     Logger logger = LoggerFactory.getLogger(ChatSocketV3.class);
