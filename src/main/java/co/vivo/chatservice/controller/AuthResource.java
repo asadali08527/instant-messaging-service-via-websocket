@@ -1,13 +1,16 @@
 package co.vivo.chatservice.controller;
 
 import co.vivo.chatservice.converter.UserConverter;
-import co.vivo.chatservice.dto.UserRequestDto;
+import co.vivo.chatservice.dto.UserDto;
 import co.vivo.chatservice.model.UserEntity;
 import co.vivo.chatservice.service.AuthService;
 import co.vivo.chatservice.service.UserService;
 import co.vivo.chatservice.wrapper.User;
 import jakarta.inject.Inject;
-import jakarta.ws.rs.*;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
@@ -26,7 +29,7 @@ public class AuthResource {
     @Path("/register")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response registerUser( UserRequestDto userRequestDto) {
+    public Response registerUser( UserDto userRequestDto) {
         UserEntity userEntity = userService.registerUser(userRequestDto);
         // Map the UserEntity to the User wrapper class
         User user = UserConverter.convert(userEntity);
@@ -38,8 +41,8 @@ public class AuthResource {
     @Path("/login")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response loginUser(UserRequestDto userRequestDto) {
-        UserEntity userEntity = authService.loginUser(userRequestDto.getEmail()!=null && !userRequestDto.getEmail().isEmpty()?userRequestDto.getEmail():userRequestDto.getMobile(), userRequestDto.getPassword());
+    public Response loginUser(UserDto userRequestDto) {
+        UserEntity userEntity = authService.loginUser(userRequestDto.getUsername(), userRequestDto.getPassword());
         if (userEntity != null) {
             String token = authService.generateToken(userEntity);
             User user = UserConverter.convert(userEntity);

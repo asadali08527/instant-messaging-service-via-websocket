@@ -1,7 +1,7 @@
 package co.vivo.chatservice.service;
 
 import co.vivo.chatservice.converter.UserConverter;
-import co.vivo.chatservice.dto.GroupRequestDto;
+import co.vivo.chatservice.dto.GroupDto;
 import co.vivo.chatservice.model.ChatGroupEntity;
 import co.vivo.chatservice.model.UserEntity;
 import co.vivo.chatservice.repository.ChatGroupRepository;
@@ -24,7 +24,7 @@ public class ChatGroupService {
 
     @Inject
     UserRepository userRepository;
-    public void createChatGroup(GroupRequestDto chatGroup, UserEntity adminUser) {
+    public void createChatGroup(GroupDto chatGroup, UserEntity adminUser) {
         ChatGroupEntity chatGroupEntity = new ChatGroupEntity();
         List<UserEntity> userEntityList = new ArrayList<>();
         chatGroupEntity.setGroupName(chatGroup.getGroupName());
@@ -83,5 +83,9 @@ public class ChatGroupService {
             group.getUsers().addAll(users);
             return group;
         }).collect(Collectors.toList());
+    }
+
+    public List<ChatGroupEntity> getGroupsByUserId(Long userId) {
+        return chatGroupRepository.findGroupsByUserId(userId);
     }
 }

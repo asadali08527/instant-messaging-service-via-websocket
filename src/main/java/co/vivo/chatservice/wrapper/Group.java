@@ -1,10 +1,12 @@
 package co.vivo.chatservice.wrapper;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import java.util.ArrayList;
 import java.util.List;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Group {
-
 
     private Long id;
 

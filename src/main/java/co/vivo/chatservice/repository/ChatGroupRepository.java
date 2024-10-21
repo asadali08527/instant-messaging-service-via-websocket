@@ -52,4 +52,11 @@ public class ChatGroupRepository {
                 .setParameter("userId", userId)
                 .getResultList();
     }
+
+    @Transactional
+    public List<UserEntity> findAllContactsForUser(String userId) {
+        return entityManager.createQuery("SELECT DISTINCT u FROM MessageEntity m JOIN UserEntity u ON (m.sender = u.userId OR m.receiver = u.userId) WHERE m.sender = :userId OR m.receiver = :userId", UserEntity.class)
+                .setParameter("userId", userId)
+                .getResultList();
+    }
 }

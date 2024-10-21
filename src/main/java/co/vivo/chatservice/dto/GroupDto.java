@@ -1,10 +1,13 @@
 package co.vivo.chatservice.dto;
 
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import java.util.ArrayList;
 import java.util.List;
 
-public class GroupRequestDto {
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class GroupDto {
 
 
     private Long id;
@@ -14,15 +17,15 @@ public class GroupRequestDto {
 
     private List<String> users = new ArrayList<>();
 
-    public GroupRequestDto() {
+    public GroupDto() {
     }
 
-    public GroupRequestDto(String groupName, List<String> users) {
+    public GroupDto(String groupName, List<String> users) {
         this.groupName = groupName;
         this.users = users;
     }
 
-    public GroupRequestDto(Long id, String groupName, List<String> users) {
+    public GroupDto(Long id, String groupName, List<String> users) {
         this.id = id;
         this.groupName = groupName;
         this.users = users;

@@ -10,14 +10,12 @@ public class MessageEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private String sender;
     private Long groupId;
     private String receiver;
     private String content;
     private String mediaUrl;
     private LocalDateTime timestamp;
-
     public MessageEntity() {
     }
 

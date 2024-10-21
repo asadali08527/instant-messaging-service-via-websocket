@@ -1,5 +1,8 @@
 package co.vivo.chatservice.wrapper;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Message {
     private String sender;
     private String content;

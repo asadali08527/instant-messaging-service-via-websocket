@@ -1,8 +1,7 @@
 package co.vivo.chatservice.controller;
 
 
-import co.vivo.chatservice.dto.GroupRequestDto;
-import co.vivo.chatservice.model.ChatGroupEntity;
+import co.vivo.chatservice.dto.GroupDto;
 import co.vivo.chatservice.model.UserEntity;
 import co.vivo.chatservice.repository.ChatGroupRepository;
 import co.vivo.chatservice.service.AuthService;
@@ -31,7 +30,7 @@ public class ChatGroupController {
     @Path("/create")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response createGroup(GroupRequestDto chatGroup, @HeaderParam("Authorization") String token) {
+    public Response createGroup(GroupDto chatGroup, @HeaderParam("Authorization") String token) {
         UserEntity adminUser = authService.verifyToken(token);
         if (adminUser == null) {
             return Response.status(Response.Status.UNAUTHORIZED).entity("Authentication failed").build();

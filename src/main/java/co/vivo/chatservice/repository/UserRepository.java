@@ -7,6 +7,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @ApplicationScoped
@@ -55,4 +56,23 @@ public class UserRepository {
     }
 
 
+    public Optional<UserEntity>  findUserByUsername(String username) {
+        return em.createQuery("SELECT u FROM UserEntity u WHERE u.username = :username", UserEntity.class)
+                .setParameter("username", username)
+                .getResultStream().findFirst();
+    }
+
+    @Transactional
+    public List<UserEntity> findAllContactsForUser(String userId) {
+        return em.createQuery("SELECT DISTINCT u FROM MessageEntity m JOIN UserEntity u ON (m.sender = u.userId OR m.receiver = u.userId) WHERE m.sender = :userId OR m.receiver = :userId", UserEntity.class)
+                .setParameter("userId", userId)
+                .getResultList();
+    }
+
+    @Transactional
+    public List<UserEntity> findContactsForUser(String userId) {
+        return em.createQuery("SELECT DISTINCT u FROM MessageEntity m JOIN UserEntity u ON (m.sender = u.userId OR m.receiver = u.userId) WHERE m.sender = :userId OR m.receiver = :userId", UserEntity.class)
+                .setParameter("userId", userId)
+                .getResultList();
+    }
 }

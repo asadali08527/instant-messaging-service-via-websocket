@@ -13,6 +13,9 @@ public class UserEntity {
     private Long id;
     private String userId;
     private String username;
+    private String firstName;
+    private String middleName;
+    private String lastName;
     private String email;
     private String mobile;
     private String deviceId; // For guest users
@@ -118,6 +121,46 @@ public class UserEntity {
 
     public void setToken(String token) {
         this.token = token;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getMiddleName() {
+        return middleName;
+    }
+
+    public void setMiddleName(String middleName) {
+        this.middleName = middleName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public UserEntity(Long id, String userId, String username, String firstName, String middleName, String lastName, String email, String mobile, String deviceId, String password, String token, UserType userType, LocalDateTime createdAt) {
+        this.id = id;
+        this.userId = userId;
+        this.username = username;
+        this.firstName = firstName;
+        this.middleName = middleName;
+        this.lastName = lastName;
+        this.email = email;
+        this.mobile = mobile;
+        this.deviceId = deviceId;
+        this.password = password;
+        this.token = token;
+        this.userType = userType;
+        this.createdAt = createdAt;
     }
 
     @Override

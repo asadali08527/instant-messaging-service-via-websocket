@@ -45,5 +45,34 @@ public class MessageRepository {
         return message;
     }
 
-    // Additional methods to find messages, delete, etc.
+    @Transactional
+    public List<MessageEntity> getMessagesBetweenUsers(String user1, String user2, int page, int size) {
+        return em.createQuery("SELECT m FROM MessageEntity m WHERE (m.sender = :user1 AND m.receiver = :user2) OR (m.sender = :user2 AND m.receiver = :user1) ORDER BY m.timestamp DESC", MessageEntity.class)
+                .setParameter("user1", user1)
+                .setParameter("user2", user2)
+                .setFirstResult(page * size)
+                .setMaxResults(size)
+                .getResultList();
+    }
+
+    @Transactional
+    public List<MessageEntity> getMessagesInGroup(Long groupId, int page, int size) {
+        return em.createQuery("SELECT m FROM MessageEntity m WHERE m.groupId = :groupId ORDER BY m.timestamp DESC", MessageEntity.class)
+                .setParameter("groupId", groupId)
+                .setFirstResult(page * size)
+                .setMaxResults(size)
+                .getResultList();
+    }
+
+    @Transactional
+    public List<MessageEntity> getMessagesBetweenUsersInTimeRange(String user1, String user2, LocalDateTime startTime, LocalDateTime endTime, int page, int size) {
+        return em.createQuery("SELECT m FROM MessageEntity m WHERE ((m.sender = :user1 AND m.receiver = :user2) OR (m.sender = :user2 AND m.receiver = :user1)) AND m.timestamp BETWEEN :startTime AND :endTime ORDER BY m.timestamp DESC", MessageEntity.class)
+                .setParameter("user1", user1)
+                .setParameter("user2", user2)
+                .setParameter("startTime", startTime)
+                .setParameter("endTime", endTime)
+                .setFirstResult(page * size)
+                .setMaxResults(size)
+                .getResultList();
+    }
 }

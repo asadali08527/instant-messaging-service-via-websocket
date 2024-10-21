@@ -1,7 +1,7 @@
 package co.vivo.chatservice.service;
 
 import co.vivo.chatservice.UserType;
-import co.vivo.chatservice.dto.UserRequestDto;
+import co.vivo.chatservice.dto.UserDto;
 import co.vivo.chatservice.model.UserEntity;
 import co.vivo.chatservice.repository.UserRepository;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -17,7 +17,7 @@ public class UserService {
     UserRepository userRepository;
 
 
-    public UserEntity registerUser(UserRequestDto userRequestDto) {
+    public UserEntity registerUser(UserDto userRequestDto) {
         UserEntity userEntity = new UserEntity();
 
         // Generate userId using UUID
@@ -27,12 +27,14 @@ public class UserService {
         // Determine if the user is a guest or a registered user based on the presence of email or mobile
         if (userRequestDto.getEmail() != null && !userRequestDto.getEmail().isEmpty()) {
             userEntity.setEmail(userRequestDto.getEmail());
-            userEntity.setUsername(userRequestDto.getEmail());  // Use email as username if provided
+            if(userRequestDto.getEmail()!=null && !userRequestDto.getEmail().isEmpty())
+                userEntity.setUsername(userRequestDto.getEmail());  // Use email as username if provided
             userEntity.setUserType(UserType.REGISTERED);
             userEntity.setPassword(userRequestDto.getPassword());
         } else if (userRequestDto.getMobile() != null && !userRequestDto.getMobile().isEmpty()) {
             userEntity.setMobile(userRequestDto.getMobile());
-            userEntity.setUsername(userRequestDto.getMobile());  // Use mobile as username if provided
+            if(userEntity.getUsername()==null && userRequestDto.getMobile()!=null && !userRequestDto.getMobile().isEmpty())
+                userEntity.setUsername(userRequestDto.getMobile());  // Use mobile as username if provided
             userEntity.setPassword(userRequestDto.getPassword());
             userEntity.setUserType(UserType.REGISTERED);
         } else {

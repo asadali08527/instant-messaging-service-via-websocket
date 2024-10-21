@@ -20,8 +20,8 @@ public class AuthService {
     @Inject
     UserRepository userRepository;
 
-    public UserEntity loginUser(String emailOrMobile, String password) {
-        return userRepository.findUserByEmailOrMobile(emailOrMobile)
+    public UserEntity loginUser(String username, String password) {
+        return userRepository.findUserByUsername(username)
                 .filter(user -> user.getPassword().equals(password))
                 .orElse(null);
     }
@@ -31,6 +31,7 @@ public class AuthService {
                 .orElseGet(() -> {
                     UserEntity guest = new UserEntity();
                     guest.setDeviceId(deviceId);
+                    guest.setUserId(deviceId);
                     guest.setCreatedAt(LocalDateTime.now());
                     guest.setUserType(UserType.GUEST);
                     userRepository.saveUser(guest);
@@ -76,9 +77,5 @@ public class AuthService {
         }
     }
 
-
-    public void registerUser(UserEntity user) {
-        userRepository.saveUser(user);
-    }
 }
 
