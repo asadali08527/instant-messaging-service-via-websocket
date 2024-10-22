@@ -14,20 +14,32 @@ public class ChatGroupRepository {
     @PersistenceContext
     private EntityManager entityManager;
 
+    /**
+     * Saves a chat group.
+     */
     @Transactional
-    public void save(ChatGroupEntity chatGroup) {
+    public ChatGroupEntity save(ChatGroupEntity chatGroup) {
         entityManager.persist(chatGroup);
+        return chatGroup;
     }
 
-    @Transactional
+    /**
+     * Retrieves a chat group by its ID.
+     */
     public ChatGroupEntity findById(Long id) {
         return entityManager.find(ChatGroupEntity.class, id);
     }
-    @Transactional
+
+    /**
+     * Retrieves all chat groups.
+     */
     public List<ChatGroupEntity> findAll() {
         return entityManager.createQuery("SELECT g FROM ChatGroupEntity g", ChatGroupEntity.class).getResultList();
     }
 
+    /**
+     * Adds a user to a chat group.
+     */
     @Transactional
     public void addUserToGroup(Long groupId, UserEntity user) {
         ChatGroupEntity group = findById(groupId);
@@ -37,6 +49,9 @@ public class ChatGroupRepository {
         }
     }
 
+    /**
+     * Removes a user from a chat group.
+     */
     @Transactional
     public void removeUserFromGroup(Long groupId, UserEntity user) {
         ChatGroupEntity group = findById(groupId);
@@ -46,16 +61,12 @@ public class ChatGroupRepository {
         }
     }
 
+    /**
+     * Finds groups by user ID.
+     */
     @Transactional
     public List<ChatGroupEntity> findGroupsByUserId(Long userId) {
         return entityManager.createQuery("SELECT g FROM ChatGroupEntity g JOIN g.users u WHERE u.id = :userId", ChatGroupEntity.class)
-                .setParameter("userId", userId)
-                .getResultList();
-    }
-
-    @Transactional
-    public List<UserEntity> findAllContactsForUser(String userId) {
-        return entityManager.createQuery("SELECT DISTINCT u FROM MessageEntity m JOIN UserEntity u ON (m.sender = u.userId OR m.receiver = u.userId) WHERE m.sender = :userId OR m.receiver = :userId", UserEntity.class)
                 .setParameter("userId", userId)
                 .getResultList();
     }

@@ -122,7 +122,7 @@ public class ChatSocket {
                 if (message != null) {
                     if (Acknowledgment.DELIVERED.name().equalsIgnoreCase(chatMessage.getStatus())) {
                         messageStatusService.markAsDelivered(message, user);
-                    } else if (Acknowledgment.READ.name().equalsIgnoreCase(chatMessage.getStatus()) && ReadReceipt.ON.equals(user.getReadReceipt())) {
+                    } else if (Acknowledgment.READ.name().equalsIgnoreCase(chatMessage.getStatus())) {
                         messageStatusService.markAsRead(message, user);
                     }
                 } else {

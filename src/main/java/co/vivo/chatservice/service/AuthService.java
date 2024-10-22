@@ -10,6 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
+
 /**
  * Service to handle user authentication and token management.
  * Author: Asad Ali
@@ -80,7 +82,8 @@ public class AuthService {
             String userId = tokenParts[0];
             logger.info("userId :{} ", userId);
             // Retrieve the user by userId
-            return userRepository.findByUserId(userId);
+            Optional<UserEntity> userEntity = userRepository.findByUserId(userId);
+            return userEntity.isPresent()? userEntity.get():null;
 
         } catch (Exception e) {
             e.printStackTrace();

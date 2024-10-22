@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
         @Index(columnList = "userId", unique = true),
         @Index(columnList = "email", unique = true),
         @Index(columnList = "mobile", unique = true),
-        @Index(columnList = "deviceId")
+        @Index(columnList = "username", unique = true)
 })
 public class UserEntity {
 
@@ -33,12 +33,9 @@ public class UserEntity {
     private String mobile;
     private String deviceId; // For guest users
     private String password; // For registered users
-
     private String token;
     private UserType userType;
     private LocalDateTime createdAt;
-
-    private ReadReceipt readReceipt;
 
     public UserEntity(Long id, String userId, String username, String email, String mobile, String deviceId, String password, String token, UserType userType, LocalDateTime createdAt) {
         this.id = id;
@@ -52,7 +49,21 @@ public class UserEntity {
         this.userType = userType;
         this.createdAt = createdAt;
     }
-
+    public UserEntity(Long id, String userId, String username, String firstName, String middleName, String lastName, String email, String mobile, String deviceId, String password, String token, UserType userType, LocalDateTime createdAt) {
+        this.id = id;
+        this.userId = userId;
+        this.username = username;
+        this.firstName = firstName;
+        this.middleName = middleName;
+        this.lastName = lastName;
+        this.email = email;
+        this.mobile = mobile;
+        this.deviceId = deviceId;
+        this.password = password;
+        this.token = token;
+        this.userType = userType;
+        this.createdAt = createdAt;
+    }
     public UserEntity() {
     }
 
@@ -95,8 +106,6 @@ public class UserEntity {
     public void setPassword(String password) {
         this.password = password;
     }
-
-
 
     public LocalDateTime getCreatedAt() {
         return createdAt;
@@ -160,30 +169,6 @@ public class UserEntity {
 
     public void setLastName(String lastName) {
         this.lastName = lastName;
-    }
-
-    public UserEntity(Long id, String userId, String username, String firstName, String middleName, String lastName, String email, String mobile, String deviceId, String password, String token, UserType userType, LocalDateTime createdAt) {
-        this.id = id;
-        this.userId = userId;
-        this.username = username;
-        this.firstName = firstName;
-        this.middleName = middleName;
-        this.lastName = lastName;
-        this.email = email;
-        this.mobile = mobile;
-        this.deviceId = deviceId;
-        this.password = password;
-        this.token = token;
-        this.userType = userType;
-        this.createdAt = createdAt;
-    }
-
-    public ReadReceipt getReadReceipt() {
-        return readReceipt;
-    }
-
-    public void setReadReceipt(ReadReceipt readReceipt) {
-        this.readReceipt = readReceipt;
     }
 
     @Override

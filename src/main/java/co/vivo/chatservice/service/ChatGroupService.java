@@ -23,13 +23,13 @@ public class ChatGroupService {
     ChatGroupRepository chatGroupRepository;
 
     @Inject
-    UserRepository userRepository;
+    UserService userService;
     public void createChatGroup(GroupDto chatGroup, UserEntity adminUser) {
         ChatGroupEntity chatGroupEntity = new ChatGroupEntity();
         List<UserEntity> userEntityList = new ArrayList<>();
         chatGroupEntity.setGroupName(chatGroup.getGroupName());
         for(String userId: chatGroup.getUsers()){
-            userEntityList.add(userRepository.findByUserId(userId));
+            userEntityList.add(userService.getUserByUserId(userId));
         }
         chatGroupEntity.getUsers().addAll(userEntityList);
         // Set the admin user in the group (if needed)

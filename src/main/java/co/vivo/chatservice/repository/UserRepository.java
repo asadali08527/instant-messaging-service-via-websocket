@@ -16,52 +16,83 @@ public class UserRepository {
     @PersistenceContext
     EntityManager em;
 
+    /**
+     * Saves a new user entity.
+     */
     @Transactional
-    public void saveUser(UserEntity user) {
+    public UserEntity saveUser(UserEntity user) {
         em.persist(user);
         em.flush();
+        return user;
     }
 
+    /**
+     * Updates an existing user entity.
+     */
     @Transactional
-    public void updateUser(UserEntity user) {
-        em.merge(user);
+    public UserEntity updateUser(UserEntity user) {
+        return em.merge(user);
     }
+
+    /**
+     * Finds a user by email or mobile number.
+     */
     @Transactional
     public Optional<UserEntity> findUserByEmailOrMobile(String emailOrMobile) {
         return em.createQuery("SELECT u FROM UserEntity u WHERE u.email = :emailOrMobile OR u.mobile = :emailOrMobile", UserEntity.class)
                 .setParameter("emailOrMobile", emailOrMobile)
-                .getResultStream().findFirst();
+                .getResultStream()
+                .findFirst();
     }
 
+    /**
+     * Finds a guest user by device ID.
+     */
     @Transactional
     public Optional<UserEntity> findGuestByDeviceId(String deviceId) {
         return em.createQuery("SELECT u FROM UserEntity u WHERE u.deviceId = :deviceId", UserEntity.class)
                 .setParameter("deviceId", deviceId)
-                .getResultStream().findFirst();
+                .getResultStream()
+                .findFirst();
     }
 
+    /**
+     * Finds a user by their user ID and type.
+     */
     @Transactional
-    public UserEntity findByIdAndUserType(String userId, UserType userType) {
+    public Optional<UserEntity> findByIdAndUserType(String userId, UserType userType) {
         return em.createQuery("SELECT u FROM UserEntity u WHERE u.userId = :userId AND u.userType = :userType", UserEntity.class)
                 .setParameter("userId", userId)
                 .setParameter("userType", userType)
-                .getSingleResult();
+                .getResultStream()
+                .findFirst();
     }
 
+    /**
+     * Finds a user by their user ID.
+     */
     @Transactional
-    public UserEntity findByUserId(String userId){
+    public Optional<UserEntity> findByUserId(String userId) {
         return em.createQuery("SELECT u FROM UserEntity u WHERE u.userId = :userId", UserEntity.class)
                 .setParameter("userId", userId)
-                .getSingleResult();
+                .getResultStream()
+                .findFirst();
     }
 
-
-    public Optional<UserEntity>  findUserByUsername(String username) {
+    /**
+     * Finds a user by their username.
+     */
+    @Transactional
+    public Optional<UserEntity> findUserByUsername(String username) {
         return em.createQuery("SELECT u FROM UserEntity u WHERE u.username = :username", UserEntity.class)
                 .setParameter("username", username)
-                .getResultStream().findFirst();
+                .getResultStream()
+                .findFirst();
     }
 
+    /**
+     * Finds all contacts for a given user by user ID.
+     */
     @Transactional
     public List<UserEntity> findAllContactsForUser(String userId) {
         return em.createQuery("SELECT DISTINCT u FROM MessageEntity m JOIN UserEntity u ON (m.sender = u.userId OR m.receiver = u.userId) WHERE m.sender = :userId OR m.receiver = :userId", UserEntity.class)
@@ -69,6 +100,9 @@ public class UserRepository {
                 .getResultList();
     }
 
+    /**
+     * Finds contacts for a given user by user ID.
+     */
     @Transactional
     public List<UserEntity> findContactsForUser(String userId) {
         return em.createQuery("SELECT DISTINCT u FROM MessageEntity m JOIN UserEntity u ON (m.sender = u.userId OR m.receiver = u.userId) WHERE m.sender = :userId OR m.receiver = :userId", UserEntity.class)

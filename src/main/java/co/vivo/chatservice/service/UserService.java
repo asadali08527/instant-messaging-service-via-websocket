@@ -8,6 +8,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.UUID;
 
 @ApplicationScoped
@@ -54,6 +55,7 @@ public class UserService {
     }
 
     public UserEntity getUserByUserId(String userId) {
-        return userRepository.findByUserId(userId);
+        Optional<UserEntity> userEntity = userRepository.findByUserId(userId);
+        return userEntity.isPresent()? userEntity.get():null;
     }
 }

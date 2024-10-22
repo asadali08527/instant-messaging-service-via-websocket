@@ -36,24 +36,26 @@ public class MessageStatusRepository {
     }
 
     /**
-     * Retrieves message statuses for a given message.
+     * Finds message statuses by message entity.
      */
+    @Transactional
     public List<MessageStatusEntity> findStatusesByMessage(MessageEntity message) {
-        TypedQuery<MessageStatusEntity> query = em.createQuery(
-                "SELECT ms FROM MessageStatusEntity ms WHERE ms.message = :message", MessageStatusEntity.class);
-        query.setParameter("message", message);
-        return query.getResultList();
+        return em.createQuery("SELECT ms FROM MessageStatusEntity ms WHERE ms.message = :message", MessageStatusEntity.class)
+                .setParameter("message", message)
+                .getResultList();
     }
 
     /**
-     * Retrieves a specific message status for a user and message.
+     * Finds a specific message status for a message and user.
      */
+    @Transactional
     public MessageStatusEntity findStatus(MessageEntity message, UserEntity user) {
-        TypedQuery<MessageStatusEntity> query = em.createQuery(
-                "SELECT ms FROM MessageStatusEntity ms WHERE ms.message = :message AND ms.user = :user", MessageStatusEntity.class);
-        query.setParameter("message", message);
-        query.setParameter("user", user);
-        return query.getResultStream().findFirst().orElse(null);
+        return em.createQuery("SELECT ms FROM MessageStatusEntity ms WHERE ms.message = :message AND ms.user = :user", MessageStatusEntity.class)
+                .setParameter("message", message)
+                .setParameter("user", user)
+                .getResultStream()
+                .findFirst()
+                .orElse(null);
     }
 
     /**
@@ -61,17 +63,16 @@ public class MessageStatusRepository {
      */
     @Transactional
     public void updateDeliveredStatus(MessageEntity message, UserEntity user, boolean delivered) {
-        logger.info("Inside updateDeliveredStatus for message {} and user {}", message.getId(), user.getUserId());
         MessageStatusEntity status = findStatus(message, user);
-        if (status == null) {
+        if (status != null) {
+            status.setDelivered(delivered);
+            status.setTimestampDelivered(delivered ? java.time.LocalDateTime.now() : null);
+            em.merge(status);
+        } else {
             status = new MessageStatusEntity(message, user);
             status.setDelivered(delivered);
             status.setTimestampDelivered(delivered ? java.time.LocalDateTime.now() : null);
             saveMessageStatus(status);
-        } else {
-            status.setDelivered(delivered);
-            status.setTimestampDelivered(delivered ? java.time.LocalDateTime.now() : null);
-            em.merge(status);
         }
     }
 
@@ -80,7 +81,6 @@ public class MessageStatusRepository {
      */
     @Transactional
     public void updateReadStatus(MessageEntity message, UserEntity user, boolean read) {
-        logger.info("Inside updateReadStatus for message {} and user {}", message.getId(), user.getUserId());
         MessageStatusEntity status = findStatus(message, user);
         if (status != null) {
             status.setRead(read);
@@ -95,19 +95,11 @@ public class MessageStatusRepository {
     }
 
     /**
-     * Retrieves all message statuses for a user.
+     * Updates the sent status of a message for a user.
      */
-    public List<MessageStatusEntity> findStatusesByUser(UserEntity user) {
-        TypedQuery<MessageStatusEntity> query = em.createQuery(
-                "SELECT ms FROM MessageStatusEntity ms WHERE ms.user = :user", MessageStatusEntity.class);
-        query.setParameter("user", user);
-        return query.getResultList();
-    }
-
     @Transactional
     public void updateSentStatus(MessageEntity message, UserEntity user, boolean sent) {
         MessageStatusEntity status = findStatus(message, user);
-        logger.info("Inside updateSentStatus for message {} and user {}, status {}", message.getId(), user.getUserId(), status);
         if (status != null) {
             status.setSent(sent);
             status.setTimestampSent(sent ? java.time.LocalDateTime.now() : null);
