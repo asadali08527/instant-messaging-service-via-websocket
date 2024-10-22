@@ -8,9 +8,9 @@ import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 
 public class S3ClientFactory {
 
-    private static final String ACCESS_KEY = System.getenv("AWS_ACCESS_KEY"); // Use environment variables
-    private static final String SECRET_KEY = System.getenv("AWS_SECRET_KEY"); // Use environment variables
-    private static final String REGION = System.getenv("AWS_REGION"); // Use environment variables
+    private static final String ACCESS_KEY = System.getenv("AWS_ACCESS_KEY");
+    private static final String SECRET_KEY = System.getenv("AWS_SECRET_KEY");
+    private static final String REGION = System.getenv("AWS_REGION");
 
     public static S3Client createS3Client() {
         return S3Client.builder()
