@@ -1,22 +1,35 @@
 package co.vivo.chatservice.model;
 
-import co.vivo.chatservice.UserType;
+import co.vivo.chatservice.enums.ReadReceipt;
+import co.vivo.chatservice.enums.UserType;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
-
+/**
+ * Entity representing a user in the chat system.
+ * Author: Asad Ali
+ */
 @Entity
-@Table(name = "users")
+@Table(name = "users",indexes = {
+        @Index(columnList = "userId", unique = true),
+        @Index(columnList = "email", unique = true),
+        @Index(columnList = "mobile", unique = true),
+        @Index(columnList = "deviceId")
+})
 public class UserEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(nullable = false, unique = true)
     private String userId;
+    @Column(nullable = false, unique = true)
     private String username;
     private String firstName;
     private String middleName;
     private String lastName;
+    @Column(nullable = false, unique = true)
     private String email;
+    @Column(nullable = false, unique = true)
     private String mobile;
     private String deviceId; // For guest users
     private String password; // For registered users
@@ -24,6 +37,8 @@ public class UserEntity {
     private String token;
     private UserType userType;
     private LocalDateTime createdAt;
+
+    private ReadReceipt readReceipt;
 
     public UserEntity(Long id, String userId, String username, String email, String mobile, String deviceId, String password, String token, UserType userType, LocalDateTime createdAt) {
         this.id = id;
@@ -161,6 +176,14 @@ public class UserEntity {
         this.token = token;
         this.userType = userType;
         this.createdAt = createdAt;
+    }
+
+    public ReadReceipt getReadReceipt() {
+        return readReceipt;
+    }
+
+    public void setReadReceipt(ReadReceipt readReceipt) {
+        this.readReceipt = readReceipt;
     }
 
     @Override

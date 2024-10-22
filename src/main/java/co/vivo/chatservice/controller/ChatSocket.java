@@ -1,8 +1,15 @@
 package co.vivo.chatservice.controller;
 
+import co.vivo.chatservice.enums.Acknowledgment;
+import co.vivo.chatservice.enums.ReadReceipt;
+import co.vivo.chatservice.model.MessageEntity;
 import co.vivo.chatservice.model.UserEntity;
+import co.vivo.chatservice.repository.MessageRepository;
+import co.vivo.chatservice.repository.UserRepository;
 import co.vivo.chatservice.service.AuthService;
 import co.vivo.chatservice.service.ChatService;
+import co.vivo.chatservice.service.MessageService;
+import co.vivo.chatservice.service.MessageStatusService;
 import co.vivo.chatservice.util.ChatUtil;
 import co.vivo.chatservice.wrapper.ChatMessage;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -32,7 +39,20 @@ public class ChatSocket {
     private AuthService authService;
 
     @Inject
-    private ChatService chatService;  // New service for handling chat logic
+    private ChatService chatService;
+
+    @Inject
+    private MessageRepository messageRepository;
+
+    @Inject
+    private UserRepository userRepository;
+
+    @Inject
+    private MessageService messageService;
+
+    @Inject
+    private MessageStatusService messageStatusService;
+
 
     private final ConcurrentHashMap<String, Session> sessions = new ConcurrentHashMap<>();
     private final ObjectMapper objectMapper = new ObjectMapper(); // For JSON processing
@@ -66,14 +86,11 @@ public class ChatSocket {
         CompletableFuture.runAsync(() -> {
             try {
                 ChatMessage chatMessage = objectMapper.readValue(message, ChatMessage.class);
-                String senderId = getUserIdFromSession(session);
-                chatMessage.setSender(senderId);
-                if (chatMessage.getRecipient() != null) {
-                    chatService.handleDirectMessage(chatMessage, session, sessions);
-                } else if (chatMessage.getGroupId() != null) {
-                    chatService.handleGroupMessage(chatMessage, session, sessions);
+                UserEntity user = chatService.getUserBySession(session, sessions);
+                if (chatMessage.isAcknowledgment()) {
+                    handleAcknowledgment(chatMessage, user);
                 } else {
-                    chatService.broadcastMessage(chatMessage, session, sessions);
+                    processMessage(chatMessage, session, user);
                 }
             } catch (IOException e) {
                 logger.error("Failed to parse message: {}", e.getMessage());
@@ -81,6 +98,43 @@ public class ChatSocket {
         });
     }
 
+    private void processMessage(ChatMessage chatMessage, Session session, UserEntity user) {
+        chatMessage.setSender(user.getUserId());
+        if (chatMessage.getRecipient() != null) {
+            MessageEntity messageEntity = messageService.saveMessage(chatMessage.getSender(), chatMessage.getRecipient(), chatMessage.getContent(), chatMessage.getMediaUrl(), chatMessage.getMessageId());
+            chatService.handleDirectMessage(chatMessage, session, sessions, messageEntity, user);
+        } else if (chatMessage.getGroupId() != null) {
+            MessageEntity messageEntity = messageService.saveGroupMessage(chatMessage.getSender(), chatMessage.getGroupId(), chatMessage.getContent(), chatMessage.getMediaUrl(), chatMessage.getMessageId());
+            chatService.handleGroupMessage(chatMessage, session, sessions, messageEntity, user);
+            messageService.sendSentAcknowledgmentBackToSender(chatMessage, session, messageEntity);
+        } else {
+            chatService.broadcastMessage(chatMessage, session, sessions);
+        }
+    }
+    /**
+     * Handles acknowledgment messages (delivered/read receipts).
+     */
+    private void handleAcknowledgment(ChatMessage chatMessage, UserEntity user) {
+        try {
+            Long messageId = chatMessage.getId();
+            if (messageId != null && user != null) {
+                MessageEntity message = messageService.getMessageById(messageId);
+                if (message != null) {
+                    if (Acknowledgment.DELIVERED.name().equalsIgnoreCase(chatMessage.getStatus())) {
+                        messageStatusService.markAsDelivered(message, user);
+                    } else if (Acknowledgment.READ.name().equalsIgnoreCase(chatMessage.getStatus()) && ReadReceipt.ON.equals(user.getReadReceipt())) {
+                        messageStatusService.markAsRead(message, user);
+                    }
+                } else {
+                    logger.warn("Message with ID {} not found for acknowledgment", messageId);
+                }
+            } else {
+                logger.warn("Invalid acknowledgment message: {}", chatMessage);
+            }
+        } catch (Exception e) {
+            logger.error("Error handling acknowledgment for message {}: {}", chatMessage.getId(), e.getMessage());
+        }
+    }
     /**
      * Called when a WebSocket connection is closed.
      */
@@ -111,16 +165,5 @@ public class ChatSocket {
         } else {
             return authService.guestLogin(userId);
         }
-    }
-
-    /**
-     * Gets the user ID from the WebSocket session.
-     */
-    private String getUserIdFromSession(Session session) {
-        return sessions.entrySet().stream()
-                .filter(entry -> entry.getValue().equals(session))
-                .map(entry -> entry.getKey())
-                .findFirst()
-                .orElse(null);
     }
 }

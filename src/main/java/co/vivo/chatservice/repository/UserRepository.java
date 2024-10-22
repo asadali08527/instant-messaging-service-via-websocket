@@ -1,6 +1,6 @@
 package co.vivo.chatservice.repository;
 
-import co.vivo.chatservice.UserType;
+import co.vivo.chatservice.enums.UserType;
 import co.vivo.chatservice.model.UserEntity;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.persistence.EntityManager;

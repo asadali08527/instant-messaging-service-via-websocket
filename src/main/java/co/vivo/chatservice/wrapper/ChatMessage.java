@@ -13,8 +13,12 @@ public class ChatMessage {
     private String content;
     private Long groupId;
     private String mediaUrl;
-
     private LocalDateTime timestamp;
+
+    // Fields for acknowledgment
+    private String messageId; // ID of the message being acknowledged
+    private String status; // "delivered" or "read"
+    private boolean acknowledgment; // Flag to indicate if this is an acknowledgment message
 
     public ChatMessage() {
     }
@@ -46,6 +50,29 @@ public class ChatMessage {
         this.timestamp = timestamp;
     }
 
+    public String getMessageId() {
+        return messageId;
+    }
+
+    public void setMessageId(String messageId) {
+        this.messageId = messageId;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public boolean isAcknowledgment() {
+        return acknowledgment;
+    }
+
+    public void setAcknowledgment(boolean acknowledgment) {
+        this.acknowledgment = acknowledgment;
+    }
 
     public String getRecipient() {
         return recipient;

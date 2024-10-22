@@ -7,14 +7,16 @@ import java.time.LocalDateTime;
 @Table(name = "messages",indexes = {
         @Index(columnList = "sender"),
         @Index(columnList = "receiver"),
-        @Index(columnList = "groupId"),
-        @Index(columnList = "timestamp")
+        @Index(columnList = "groupId")
+}, uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"messageId", "sender", "receiver"})
 })
 public class MessageEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    private String messageId;
     private String sender;
     private Long groupId;
     private String receiver;
@@ -88,6 +90,14 @@ public class MessageEntity {
 
     public void setGroupId(Long groupId) {
         this.groupId = groupId;
+    }
+
+    public String getMessageId() {
+        return messageId;
+    }
+
+    public void setMessageId(String messageId) {
+        this.messageId = messageId;
     }
 
     @Override

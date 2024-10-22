@@ -26,10 +26,11 @@ public class MessageRepository {
      * Saves a message entity to the database.
      */
     @Transactional
-    public void saveMessage(MessageEntity message) {
+    public MessageEntity saveMessage(MessageEntity message) {
         logger.info("Message :{}", message.toString());
         em.persist(message);
         em.flush();
+        return message;
     }
     /**
      * Retrieves the message history, ordered by timestamp.
@@ -86,4 +87,9 @@ public class MessageRepository {
                 .setMaxResults(size)
                 .getResultList();
     }
+
+    public MessageEntity findById(Long messageId) {
+       return  em.find(MessageEntity.class, messageId);
+    }
+
 }

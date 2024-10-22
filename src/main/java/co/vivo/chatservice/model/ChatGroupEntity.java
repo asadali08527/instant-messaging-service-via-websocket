@@ -4,7 +4,10 @@ import jakarta.persistence.*;
 
 import java.util.ArrayList;
 import java.util.List;
-
+/**
+ * Entity representing a chat group.
+ * Author: Asad Ali
+ */
 @Entity
 @Table(name = "chat_groups")
 public class ChatGroupEntity {

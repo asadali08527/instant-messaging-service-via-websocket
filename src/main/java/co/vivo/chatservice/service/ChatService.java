@@ -1,5 +1,7 @@
 package co.vivo.chatservice.service;
 
+import co.vivo.chatservice.enums.Acknowledgment;
+import co.vivo.chatservice.model.MessageEntity;
 import co.vivo.chatservice.model.UserEntity;
 import co.vivo.chatservice.repository.MessageRepository;
 import co.vivo.chatservice.wrapper.ChatMessage;
@@ -31,32 +33,36 @@ public class ChatService {
     @Inject
     private MessageService messageService;
 
+    @Inject
+    private UserService userService;
+
     /**
      * Handles sending a direct message between users.
      */
-    public void handleDirectMessage( ChatMessage chatMessage, Session session, ConcurrentHashMap<String, Session> sessions) {
-        if (chatMessage.getContent() != null) {
-            messageService.sendMessage(chatMessage, session, sessions);
-        }
-        if (chatMessage.getMediaUrl() != null) {
-            messageService.sendMessage(chatMessage, session, sessions);
-        }
-        messageService.saveMessage(chatMessage.getSender(), chatMessage.getRecipient(), chatMessage.getContent(), chatMessage.getMediaUrl());
+    public void handleDirectMessage( ChatMessage chatMessage, Session session, ConcurrentHashMap<String, Session> sessions, MessageEntity messageEntity, UserEntity user) {
+            Acknowledgment acknowledgment = messageService.sendMessage(chatMessage, session, sessions);
+            if(Acknowledgment.SENT.equals(acknowledgment)) {
+                messageService.markAsSent(messageEntity, user);
+                messageService.sendSentAcknowledgmentBackToSender(chatMessage, session, messageEntity);
+            }
+
     }
 
     /**
      * Handles sending a message to a group.
      */
-    public void handleGroupMessage(ChatMessage chatMessage, Session session, ConcurrentHashMap<String, Session> sessions) {
+    public void handleGroupMessage(ChatMessage chatMessage, Session session, ConcurrentHashMap<String, Session> sessions, MessageEntity messageEntity, UserEntity user) {
         List<UserEntity> groupUsers = chatGroupService.getGroupUsersbyGroupId(chatMessage.getGroupId(), chatMessage.getSender());
-        if (groupUsers.stream().map(UserEntity::getUserId).collect(Collectors.toList()).contains(chatMessage.getSender())) {
-            groupUsers.forEach(user -> {
-                if (!user.getUserId().equalsIgnoreCase(chatMessage.getSender())) {
-                    chatMessage.setRecipient(user.getUserId());
-                    messageService.sendMessage(chatMessage, session, sessions);
+        if (groupUsers.stream().map(UserEntity::getUserId).anyMatch(id -> id.equals(chatMessage.getSender()))) {
+            groupUsers.forEach(groupUser -> {
+                if (!groupUser.getUserId().equalsIgnoreCase(chatMessage.getSender())) {
+                    chatMessage.setRecipient(groupUser.getUserId());
+                    Acknowledgment acknowledgment =messageService.sendMessage(chatMessage, session, sessions);
+                    if(Acknowledgment.SENT.equals(acknowledgment)) {
+                        messageService.markAsSent(messageEntity, user);
+                    }
                 }
             });
-            messageService.saveGroupMessage(chatMessage.getSender(), chatMessage.getGroupId(), chatMessage.getContent(), chatMessage.getMediaUrl());
         } else {
             throw new RuntimeException("User not part of the group");
         }
@@ -87,4 +93,35 @@ public class ChatService {
     public void notifyUserLeft(String userId, ConcurrentHashMap<String, Session> sessions) {
         sessions.values().forEach(s -> s.getAsyncRemote().sendText("User " + userId + " has left the chat"));
     }
+
+    /**
+     * Marks a message as delivered to a user.
+     */
+    public void markMessageAsDelivered(MessageEntity message, UserEntity user) {
+        messageService.markAsDelivered(message, user);
+    }
+
+    /**
+     * Marks a message as read by a user.
+     */
+    public void markMessageAsRead(MessageEntity message, UserEntity user) {
+        messageService.markAsRead(message, user);
+    }
+
+    /**
+     * Marks a message as sent by a user.
+     */
+    public void markMessageAsSent(MessageEntity message, UserEntity user) {
+        messageService.markAsSent(message, user);
+    }
+
+    public UserEntity getUserBySession(Session session, ConcurrentHashMap<String, Session> sessions) {
+        return sessions.entrySet().stream()
+                .filter(entry -> entry.getValue().equals(session))
+                .map(entry -> entry.getKey())
+                .findFirst()
+                .map(userId -> userService.getUserByUserId(userId))
+                .orElse(null);
+    }
+
 }

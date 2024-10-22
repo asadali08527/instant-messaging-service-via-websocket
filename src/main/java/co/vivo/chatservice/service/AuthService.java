@@ -1,6 +1,6 @@
 package co.vivo.chatservice.service;
 
-import co.vivo.chatservice.UserType;
+import co.vivo.chatservice.enums.UserType;
 import co.vivo.chatservice.model.UserEntity;
 import co.vivo.chatservice.repository.UserRepository;
 import co.vivo.chatservice.util.CryptoUtils;

@@ -1,6 +1,6 @@
 package co.vivo.chatservice.wrapper;
 
-import co.vivo.chatservice.UserType;
+import co.vivo.chatservice.enums.UserType;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.time.LocalDateTime;
