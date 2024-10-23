@@ -69,29 +69,6 @@ public class ChatController {
         return Response.ok(contacts).build();
     }
 
-    // Endpoint to get all groups a user has joined
-    @GET
-    @Path("/{userId}/groups")
-    public Response getUserGroups(@PathParam("userId") String userId, @HeaderParam("Authorization") String token) {
-        UserEntity userEntity = authService.verifyToken(token);
-        if (userEntity == null || !userEntity.getUserId().equalsIgnoreCase(userId)) {
-            return Response.status(Response.Status.UNAUTHORIZED).entity("Authentication failed").build();
-        }
-        List<ChatGroupEntity> groups = chatGroupService.getGroupsByUserId(userEntity.getId());
-        // Mapping each ChatGroupEntity to GroupRequestDto
-        List<GroupDto> groupDtos = groups.stream().map(group -> {
-            // Extract userIds from the group
-            List<String> userIds = group.getUsers().stream()
-                    .map(UserEntity::getUserId) // get the userId of each UserEntity
-                    .collect(Collectors.toList());
-
-            // Create and return GroupRequestDto with groupId, groupName, and userIds
-            return new GroupDto(group.getId(), group.getGroupName(), userIds);
-        }).collect(Collectors.toList());
-
-        return Response.ok(groupDtos).build();
-    }
-
     // Endpoint to get all messages between two users with pagination
     @GET
     @Path("/messages/{userId}")
