@@ -2,6 +2,7 @@ package co.vivo.chatservice.controller;
 
 import co.vivo.chatservice.converter.UserConverter;
 import co.vivo.chatservice.dto.GroupDto;
+import co.vivo.chatservice.dto.Media;
 import co.vivo.chatservice.dto.UserDto;
 import co.vivo.chatservice.model.ChatGroupEntity;
 import co.vivo.chatservice.model.MessageEntity;
@@ -87,8 +88,9 @@ public class ChatController {
         logger.info("Fetched messages between {} and {} , messages={}", userId,target, messages);
         // Mapping each MessageEntity to ChatMessage
         List<ChatMessage> chatMessages = messages.stream().map(message -> {
+            Media media = message.getMedia()!=null? new Media(message.getMedia().getId(), message.getMedia().getMediaUrl(), message.getMedia().getCreatedAt()):null;
             // Create and return ChatMessage with relevant fields
-            return new ChatMessage(message.getId(),message.getReceiver(), message.getSender(), message.getContent(),message.getMediaUrl(), message.getTimestamp()  );
+            return new ChatMessage(message.getId(),message.getReceiver(), message.getSender(),message.getContent(),media , message.getTimestamp()  );
         }).collect(Collectors.toList());
         logger.info("Returning messages between {} and {} , messages={}", userId,target, chatMessages);
         return Response.ok(messages).build();
@@ -111,7 +113,8 @@ public class ChatController {
         logger.info("Fetched messages between user: {} and group: {} , messages={}", userId,groupId, messages);
         // Mapping each MessageEntity to ChatMessage
         List<ChatMessage> chatMessages = messages.stream().map(message -> {
-            return new ChatMessage(message.getId(),message.getReceiver(), message.getSender(),  message.getContent(), message.getGroupId(),message.getMediaUrl(), message.getTimestamp()  );
+            Media media = message.getMedia()!=null? new Media(message.getMedia().getId(), message.getMedia().getMediaUrl(), message.getMedia().getCreatedAt()):null;
+            return new ChatMessage(message.getId(),message.getReceiver(), message.getSender(),  message.getContent(), message.getGroupId(),media, message.getTimestamp()  );
         }).collect(Collectors.toList());
         logger.info("Returning messages between user: {} and group: {} , messages={}", userId,groupId, chatMessages);
         return Response.ok(chatMessages).build();

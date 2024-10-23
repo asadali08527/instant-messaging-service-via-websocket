@@ -21,7 +21,12 @@ public class MessageEntity {
     private Long groupId;
     private String receiver;
     private String content;
-    private String mediaUrl;
+
+    // One-to-one relationship with MediaEntity, if the message has media content
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "media_id")
+    private MediaEntity media;
+
     private LocalDateTime timestamp;
     public MessageEntity() {
     }
@@ -32,7 +37,6 @@ public class MessageEntity {
         this.groupId = groupId;
         this.receiver = receiver;
         this.content = content;
-        this.mediaUrl = mediaUrl;
         this.timestamp = timestamp;
     }
 
@@ -58,14 +62,6 @@ public class MessageEntity {
 
     public void setContent(String content) {
         this.content = content;
-    }
-
-    public String getMediaUrl() {
-        return mediaUrl;
-    }
-
-    public void setMediaUrl(String mediaUrl) {
-        this.mediaUrl = mediaUrl;
     }
 
     public LocalDateTime getTimestamp() {
@@ -100,14 +96,24 @@ public class MessageEntity {
         this.messageId = messageId;
     }
 
+    public MediaEntity getMedia() {
+        return media;
+    }
+
+    public void setMedia(MediaEntity media) {
+        this.media = media;
+    }
+
     @Override
     public String toString() {
         return "MessageEntity{" +
                 "id=" + id +
+                ", messageId='" + messageId + '\'' +
                 ", sender='" + sender + '\'' +
+                ", groupId=" + groupId +
                 ", receiver='" + receiver + '\'' +
                 ", content='" + content + '\'' +
-                ", mediaUrl='" + mediaUrl + '\'' +
+                ", media=" + media +
                 ", timestamp=" + timestamp +
                 '}';
     }

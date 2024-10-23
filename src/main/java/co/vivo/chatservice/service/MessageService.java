@@ -1,6 +1,7 @@
 package co.vivo.chatservice.service;
 
 import co.vivo.chatservice.enums.Acknowledgment;
+import co.vivo.chatservice.model.MediaEntity;
 import co.vivo.chatservice.model.MessageEntity;
 import co.vivo.chatservice.model.UserEntity;
 import co.vivo.chatservice.repository.MessageRepository;
@@ -71,36 +72,43 @@ public class MessageService {
         }
         session.getAsyncRemote().sendText(serializeMessage(chatMessage));
     }
+    public MessageEntity saveMessage(String senderId, String recipientId, Long groupId, String content, String mediaUrl, String messageId) {
+        MessageEntity msgEntity = new MessageEntity();
+        msgEntity.setSender(senderId);
+
+        if (groupId != null) {
+            msgEntity.setGroupId(groupId);
+        } else {
+            msgEntity.setReceiver(recipientId);
+        }
+
+        msgEntity.setContent(content);
+        msgEntity.setMessageId(messageId);
+        msgEntity.setTimestamp(LocalDateTime.now());
+
+        // If there's a media URL, save it to MediaEntity
+        if (mediaUrl != null && !mediaUrl.isEmpty()) {
+            MediaEntity mediaEntity = new MediaEntity(mediaUrl, LocalDateTime.now());
+            msgEntity.setMedia(mediaEntity);
+        }
+
+        msgEntity = messageRepository.saveMessage(msgEntity);
+        logger.info("Message saved: {}", msgEntity);
+        return msgEntity;
+    }
+
     /**
      * Saves a direct message to the database.
      */
-    public MessageEntity saveMessage(String senderId, String recipientId, String content, String mediaUrl, String messageId) {
-        MessageEntity msgEntity = new MessageEntity();
-        msgEntity.setSender(senderId);
-        msgEntity.setReceiver(recipientId);
-        msgEntity.setContent(content);
-        msgEntity.setMediaUrl(mediaUrl);
-        msgEntity.setTimestamp(LocalDateTime.now());
-        msgEntity.setMessageId(messageId);
-        msgEntity= messageRepository.saveMessage(msgEntity);
-        logger.info("Message saved: {}", msgEntity);
-        return msgEntity;
+    public MessageEntity saveUserMessage(String senderId, String recipientId, String content, String mediaUrl, String messageId) {
+        return saveMessage(senderId,recipientId, null, content,mediaUrl,messageId );
     }
 
     /**
      * Saves a group message to the database.
      */
     public MessageEntity saveGroupMessage(String senderId, Long groupId, String content, String mediaUrl, String messageId) {
-        MessageEntity msgEntity = new MessageEntity();
-        msgEntity.setSender(senderId);
-        msgEntity.setGroupId(groupId);
-        msgEntity.setContent(content);
-        msgEntity.setMediaUrl(mediaUrl);
-        msgEntity.setMessageId(messageId);
-        msgEntity.setTimestamp(LocalDateTime.now());
-        msgEntity = messageRepository.saveMessage(msgEntity);
-        logger.info("Group message saved: {}", content);
-        return msgEntity;
+        return saveMessage(senderId,null, groupId, content,mediaUrl,messageId );
     }
 
     /**

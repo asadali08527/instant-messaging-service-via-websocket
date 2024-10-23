@@ -64,29 +64,27 @@ public class MessageRepository {
     @Transactional
     public List<MessageEntity> getMessagesBetweenUsers(String user1, String user2, int page, int size) {
         TypedQuery<MessageEntity> query = em.createQuery(
-                "SELECT m FROM MessageEntity m WHERE (m.sender = :user1 AND m.receiver = :user2) OR (m.sender = :user2 AND m.receiver = :user1) ORDER BY m.timestamp DESC",
-                MessageEntity.class);
+                "SELECT m FROM MessageEntity m LEFT JOIN FETCH m.media WHERE (m.sender = :user1 AND m.receiver = :user2) " +
+                        "OR (m.sender = :user2 AND m.receiver = :user1) ORDER BY m.timestamp DESC", MessageEntity.class);
         return query.setParameter("user1", user1)
                 .setParameter("user2", user2)
                 .setFirstResult(page * size)
                 .setMaxResults(size)
                 .getResultList();
     }
-
     /**
      * Retrieves group messages with pagination.
      */
     @Transactional
     public List<MessageEntity> getMessagesInGroup(Long groupId, int page, int size) {
         TypedQuery<MessageEntity> query = em.createQuery(
-                "SELECT m FROM MessageEntity m WHERE m.groupId = :groupId ORDER BY m.timestamp DESC",
+                "SELECT m FROM MessageEntity m LEFT JOIN FETCH m.media WHERE m.groupId = :groupId ORDER BY m.timestamp DESC",
                 MessageEntity.class);
         return query.setParameter("groupId", groupId)
                 .setFirstResult(page * size)
                 .setMaxResults(size)
                 .getResultList();
     }
-
     /**
      * Retrieves messages between users in a specific time range.
      */

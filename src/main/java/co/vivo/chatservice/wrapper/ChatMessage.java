@@ -1,5 +1,6 @@
 package co.vivo.chatservice.wrapper;
 
+import co.vivo.chatservice.dto.Media;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.time.LocalDateTime;
@@ -11,42 +12,41 @@ public class ChatMessage {
     private String recipient;
     private String sender;
     private String content;
+    private String messageId;
     private Long groupId;
     private String mediaUrl;
     private LocalDateTime timestamp;
-
-    // Fields for acknowledgment
-    private String messageId; // ID of the message being acknowledged
+    private Media media;
     private String status; // "delivered" or "read"
     private boolean acknowledgment; // Flag to indicate if this is an acknowledgment message
 
     public ChatMessage() {
     }
 
-    public ChatMessage(String recipient, String sender, String content, Long groupId, String mediaUrl) {
+    public ChatMessage(String recipient, String sender, String content, Long groupId, Media media) {
         this.recipient = recipient;
         this.sender = sender;
         this.content = content;
         this.groupId = groupId;
-        this.mediaUrl = mediaUrl;
+        this.media = media;
     }
 
-    public ChatMessage(Long id, String recipient, String sender, String content, Long groupId, String mediaUrl, LocalDateTime timestamp) {
+    public ChatMessage(Long id, String recipient, String sender, String content, Long groupId, Media media, LocalDateTime timestamp) {
         this.id = id;
         this.recipient = recipient;
         this.sender = sender;
         this.content = content;
         this.groupId = groupId;
-        this.mediaUrl = mediaUrl;
+        this.media = media;
         this.timestamp = timestamp;
     }
 
-    public ChatMessage(Long id, String recipient, String sender, String content, String mediaUrl, LocalDateTime timestamp) {
+    public ChatMessage(Long id, String recipient, String sender, String content, Media media, LocalDateTime timestamp) {
         this.id = id;
         this.recipient = recipient;
         this.sender = sender;
         this.content = content;
-        this.mediaUrl = mediaUrl;
+        this.media = media;
         this.timestamp = timestamp;
     }
 
@@ -106,12 +106,12 @@ public class ChatMessage {
         this.groupId = groupId;
     }
 
-    public String getMediaUrl() {
-        return mediaUrl;
+    public Media getMedia() {
+        return media;
     }
 
-    public void setMediaUrl(String mediaUrl) {
-        this.mediaUrl = mediaUrl;
+    public void setMedia(Media media) {
+        this.media = media;
     }
 
     public Long getId() {

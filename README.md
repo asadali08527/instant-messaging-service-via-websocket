@@ -173,6 +173,9 @@ Set up ECS cluster and service to deploy the containerized application.
      ```json
      {
        "content":"hello",
+        "media": {
+            "mediaUrl": "quarkus-chat-service.s3.eu-north-1.amazonaws.com/14d5ce8e-3cb3-4eb3-9faf-3d3a4a85b26f.jpeg"
+        },  
        "recipient": "recipient-user-id",
        "messageId": "msg_{{timestamp}}"
      }
@@ -184,6 +187,9 @@ Set up ECS cluster and service to deploy the containerized application.
      ```json
      {
        "content":"hello",
+        "media": {
+            "mediaUrl": "quarkus-chat-service.s3.eu-north-1.amazonaws.com/14d5ce8e-3cb3-4eb3-9faf-3d3a4a85b26f.jpeg"
+        },  
        "groupId": {groupId},
        "messageId": "msg_{{timestamp}}"
      }

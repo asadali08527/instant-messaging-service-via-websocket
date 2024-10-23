@@ -101,10 +101,10 @@ public class ChatSocket {
     private void processMessage(ChatMessage chatMessage, Session session, UserEntity user) {
         chatMessage.setSender(user.getUserId());
         if (chatMessage.getRecipient() != null) {
-            MessageEntity messageEntity = messageService.saveMessage(chatMessage.getSender(), chatMessage.getRecipient(), chatMessage.getContent(), chatMessage.getMediaUrl(), chatMessage.getMessageId());
+            MessageEntity messageEntity = messageService.saveUserMessage(chatMessage.getSender(), chatMessage.getRecipient(), chatMessage.getContent(), chatMessage.getMedia().getMediaUrl(), chatMessage.getMessageId());
             chatService.handleDirectMessage(chatMessage, session, sessions, messageEntity, user);
         } else if (chatMessage.getGroupId() != null) {
-            MessageEntity messageEntity = messageService.saveGroupMessage(chatMessage.getSender(), chatMessage.getGroupId(), chatMessage.getContent(), chatMessage.getMediaUrl(), chatMessage.getMessageId());
+            MessageEntity messageEntity = messageService.saveGroupMessage(chatMessage.getSender(), chatMessage.getGroupId(), chatMessage.getContent(), chatMessage.getMedia().getMediaUrl(), chatMessage.getMessageId());
             chatService.handleGroupMessage(chatMessage, session, sessions, messageEntity, user);
             messageService.sendSentAcknowledgmentBackToSender(chatMessage, session, messageEntity);
         } else {
