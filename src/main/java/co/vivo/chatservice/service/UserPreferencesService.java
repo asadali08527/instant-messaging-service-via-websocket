@@ -1,5 +1,7 @@
 package co.vivo.chatservice.service;
 
+import co.vivo.chatservice.dto.UserPreferencesDto;
+import co.vivo.chatservice.enums.ReadReceipt;
 import co.vivo.chatservice.model.UserPreferences;
 import co.vivo.chatservice.model.UserEntity;
 import co.vivo.chatservice.repository.UserPreferencesRepository;
@@ -25,11 +27,11 @@ public class UserPreferencesService {
      * Update the user preferences.
      */
     @Transactional
-    public void updateUserPreferences(Long userId, UserPreferences newPreferences) {
+    public void updateUserPreferences(Long userId, UserPreferencesDto newPreferences) {
         Optional<UserPreferences> existingPreferences = userPreferencesRepository.findByUserId(userId);
 
         existingPreferences.ifPresent(preferences -> {
-            preferences.setReadReceiptEnabled(newPreferences.isReadReceiptEnabled());
+            preferences.setReadReceipt(ReadReceipt.valueOf(newPreferences.getReadReceipt()));
             preferences.setMuteNotifications(newPreferences.isMuteNotifications());
             preferences.setHideSeenStatus(newPreferences.isHideSeenStatus());
             preferences.setUpdatedAt(java.time.LocalDateTime.now());
@@ -41,10 +43,10 @@ public class UserPreferencesService {
      * Create new user preferences (if not exist).
      */
     @Transactional
-    public void createUserPreferences(UserEntity user, UserPreferences preferences) {
+    public void createUserPreferences(UserEntity user, UserPreferencesDto preferences) {
         UserPreferences userPreferences = new UserPreferences(
                 user,
-                preferences.isReadReceiptEnabled(),
+                ReadReceipt.valueOf(preferences.getReadReceipt()),
                 preferences.isMuteNotifications(),
                 preferences.isHideSeenStatus()
         );

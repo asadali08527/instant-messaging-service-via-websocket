@@ -3,14 +3,18 @@ package co.vivo.chatservice.service;
 import co.vivo.chatservice.enums.UserType;
 import co.vivo.chatservice.model.UserEntity;
 import co.vivo.chatservice.repository.UserRepository;
+import co.vivo.chatservice.util.ChatUtil;
 import co.vivo.chatservice.util.CryptoUtils;
+import co.vivo.chatservice.util.PasswordHashingUtil;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.websocket.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * Service to handle user authentication and token management.
@@ -28,9 +32,15 @@ public class AuthService {
      * Authenticates a user by username and password.
      */
     public UserEntity loginUser(String username, String password) {
-        return userRepository.findUserByUsername(username)
-                .filter(user -> user.getPassword().equals(password))
-                .orElse(null);
+        Optional<UserEntity> userOptional = userRepository.findUserByUsername(username);
+        if (userOptional.isPresent()) {
+            UserEntity user = userOptional.get();
+            // Verify the hashed password
+            if (PasswordHashingUtil.verifyPassword(password, user.getPassword())) {
+                return user;
+            }
+        }
+        return null;
     }
     /**
      * Handles guest login based on device ID.
@@ -38,12 +48,16 @@ public class AuthService {
     public UserEntity guestLogin(String deviceId) {
         return userRepository.findGuestByDeviceId(deviceId)
                 .orElseGet(() -> {
+                    String uuid = UUID.randomUUID().toString();
                     UserEntity guest = new UserEntity();
                     guest.setDeviceId(deviceId);
-                    guest.setUserId(deviceId);
+                    guest.setMobile(uuid);
+                    guest.setEmail(uuid);
+                    guest.setUsername(uuid);
+                    guest.setUserId(uuid);
                     guest.setCreatedAt(LocalDateTime.now());
                     guest.setUserType(UserType.GUEST);
-                    userRepository.saveUser(guest);
+                    guest = userRepository.saveUser(guest);
                     return guest;
                 });
     }
@@ -91,5 +105,16 @@ public class AuthService {
         }
     }
 
+    /**
+     * Authenticates the user based on token or guest login.
+     */
+    public UserEntity authenticateUser(Session session, String userId) {
+        String token = ChatUtil.extractToken(session.getQueryString());
+        if (token != null && !token.isEmpty()) {
+            return verifyToken(token);
+        } else {
+            return guestLogin(userId);
+        }
+    }
 }
 

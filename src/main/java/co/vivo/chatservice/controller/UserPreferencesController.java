@@ -1,5 +1,6 @@
 package co.vivo.chatservice.controller;
 
+import co.vivo.chatservice.dto.UserPreferencesDto;
 import co.vivo.chatservice.model.UserPreferences;
 import co.vivo.chatservice.model.UserEntity;
 import co.vivo.chatservice.service.UserPreferencesService;
@@ -8,6 +9,8 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+
+import java.util.Optional;
 
 @Path("/user-preferences")
 @Produces(MediaType.APPLICATION_JSON)
@@ -32,8 +35,16 @@ public class UserPreferencesController {
         }
 
         return userPreferencesService.getUserPreferences(user.getId())
-                .map(preferences -> Response.ok(preferences).build())
+                .map(preferences -> Response.ok(preparePreferenceDto(preferences)).build())
                 .orElse(Response.status(Response.Status.NOT_FOUND).entity("Preferences not found").build());
+    }
+
+    private Optional<UserPreferencesDto> preparePreferenceDto(UserPreferences preferences) {
+        UserPreferencesDto dto = new UserPreferencesDto();
+        dto.setReadReceipt(preferences.getReadReceipt().name());
+        dto.setMuteNotifications(preferences.isMuteNotifications());
+        dto.setHideSeenStatus(preferences.isHideSeenStatus());
+        return Optional.of(dto);
     }
 
     /**
@@ -41,7 +52,7 @@ public class UserPreferencesController {
      */
     @PUT
     @Path("/{userId}")
-    public Response updateUserPreferences(@PathParam("userId") String userId, @HeaderParam("Authorization") String token, UserPreferences preferences) {
+    public Response updateUserPreferences(@PathParam("userId") String userId, @HeaderParam("Authorization") String token, UserPreferencesDto preferences) {
         UserEntity user = authService.verifyToken(token);
         if (user == null || !user.getUserId().equals(userId)) {
             return Response.status(Response.Status.UNAUTHORIZED).entity("Authentication failed").build();
@@ -54,15 +65,15 @@ public class UserPreferencesController {
     /**
      * Create the user preferences.
      */
-    @PUT
+    @POST
     @Path("/{userId}")
-    public Response createUserPreferences(@PathParam("userId") String userId, @HeaderParam("Authorization") String token, UserPreferences preferences) {
+    public Response createUserPreferences(@PathParam("userId") String userId, @HeaderParam("Authorization") String token, UserPreferencesDto userPreferencesDto) {
         UserEntity user = authService.verifyToken(token);
         if (user == null || !user.getUserId().equals(userId)) {
             return Response.status(Response.Status.UNAUTHORIZED).entity("Authentication failed").build();
         }
 
-        userPreferencesService.createUserPreferences(user, preferences);
+        userPreferencesService.createUserPreferences(user, userPreferencesDto);
         return Response.ok().entity("Preferences updated successfully").build();
     }
 }

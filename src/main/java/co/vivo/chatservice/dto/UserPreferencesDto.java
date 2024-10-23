@@ -4,19 +4,19 @@ package co.vivo.chatservice.dto;
  */
 public class UserPreferencesDto {
 
-    private boolean readReceiptEnabled;
+    private String readReceipt;
     private boolean muteNotifications;
     private boolean hideSeenStatus;
 
     public UserPreferencesDto() {
     }
 
-    public boolean isReadReceiptEnabled() {
-        return readReceiptEnabled;
+    public String getReadReceipt() {
+        return readReceipt;
     }
 
-    public void setReadReceiptEnabled(boolean readReceiptEnabled) {
-        this.readReceiptEnabled = readReceiptEnabled;
+    public void setReadReceipt(String readReceipt) {
+        this.readReceipt = readReceipt;
     }
 
     public boolean isMuteNotifications() {

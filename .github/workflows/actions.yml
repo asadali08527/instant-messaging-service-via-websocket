@@ -52,6 +52,6 @@ jobs:
         uses: aws-actions/amazon-ecs-deploy-task-definition@v2
         with:
           task-definition: ecs-task-definition.json
-          service: websocket-messaging-service
+          service: quarkus-ecs-websocket-service
           cluster: websocket-cluster
           wait-for-service-stability: true

@@ -61,11 +61,11 @@ public class UserPreferences {
         this.user = user;
     }
 
-    public ReadReceipt isReadReceiptEnabled() {
+    public ReadReceipt getReadReceipt() {
         return readReceipt;
     }
 
-    public void setReadReceiptEnabled(ReadReceipt readReceipt) {
+    public void setReadReceipt(ReadReceipt readReceipt) {
         this.readReceipt = readReceipt;
         this.updatedAt = LocalDateTime.now();
     }

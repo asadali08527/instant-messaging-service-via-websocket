@@ -11,11 +11,12 @@ COPY src ./src
 RUN mvn package -DskipTests
 
 # Stage 2 - Create the runtime image
-FROM quay.io/quarkus/quarkus-micro-image:2.0
+# Use an official Eclipse Temurin (OpenJDK) image for Java 17
+FROM eclipse-temurin:17-jdk-alpine
 WORKDIR /app
 
 # Copy the built application from the first stage
-COPY --from=build /app/target/*-runner.jar /app/app.jar
+COPY --from=build /app/target/chatservice-1.0.0-SNAPSHOT-runner.jar /app/app.jar
 
 # Expose the WebSocket or API ports (adjust as necessary)
 EXPOSE 8080

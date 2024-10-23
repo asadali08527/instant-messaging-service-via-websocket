@@ -48,7 +48,10 @@ public class ChatController {
             return Response.status(Response.Status.UNAUTHORIZED).entity("Authentication failed").build();
         }
         List<UserEntity> contacts = userRepository.findContactsForUser(userId);
-        return Response.ok(UserConverter.convert(contacts.stream().filter(f->f.getUserId().equalsIgnoreCase(userId)).findFirst().get())).build();
+        List<UserDto> user= contacts.stream().filter(f->f.getUserId().equalsIgnoreCase(target)).map(m->{
+            return new UserDto(m.getFirstName(),m.getMiddleName(), m.getLastName(), m.getUserId());
+        }).collect(Collectors.toList());
+        return Response.ok(user).build();
     }
 
     // Endpoint to get all contacts a user has interacted with

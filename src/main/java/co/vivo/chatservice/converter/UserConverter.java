@@ -7,7 +7,7 @@ public class UserConverter {
     public static User convert(Object object) {
         if(object instanceof UserEntity){
             UserEntity userEntity = (UserEntity)object;
-            return new User(
+            return new User(userEntity.getFirstName(),userEntity.getMiddleName(), userEntity.getLastName(),
                     userEntity.getId(),
                     userEntity.getUserId(),
                     userEntity.getUsername(),

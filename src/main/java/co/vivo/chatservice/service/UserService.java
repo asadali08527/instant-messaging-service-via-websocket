@@ -4,6 +4,7 @@ import co.vivo.chatservice.enums.UserType;
 import co.vivo.chatservice.dto.UserDto;
 import co.vivo.chatservice.model.UserEntity;
 import co.vivo.chatservice.repository.UserRepository;
+import co.vivo.chatservice.util.PasswordHashingUtil;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
@@ -22,36 +23,51 @@ public class UserService {
         UserEntity userEntity = new UserEntity();
 
         // Generate userId using UUID
-        String userId = UUID.randomUUID().toString();
-        userEntity.setUserId(userId);
+        userEntity.setUserId(UUID.randomUUID().toString());
+        userEntity.setFirstName(userRequestDto.getFirstName());
+        userEntity.setMiddleName(userRequestDto.getMiddleName());
+        userEntity.setLastName(userRequestDto.getLastName());
+        String username = userRequestDto.getUsername();
 
-        // Determine if the user is a guest or a registered user based on the presence of email or mobile
-        if (userRequestDto.getEmail() != null && !userRequestDto.getEmail().isEmpty()) {
+        // Set email if provided and use it as the username if none is provided
+        if (isNotEmpty(userRequestDto.getEmail())) {
             userEntity.setEmail(userRequestDto.getEmail());
-            if (userRequestDto.getEmail() != null && !userRequestDto.getEmail().isEmpty())
-                userEntity.setUsername(userRequestDto.getEmail());  // Use email as username if provided
-            userEntity.setUserType(UserType.REGISTERED);
-            userEntity.setPassword(userRequestDto.getPassword());
-        } else if (userRequestDto.getMobile() != null && !userRequestDto.getMobile().isEmpty()) {
-            userEntity.setMobile(userRequestDto.getMobile());
-            if (userEntity.getUsername() == null && userRequestDto.getMobile() != null && !userRequestDto.getMobile().isEmpty())
-                userEntity.setUsername(userRequestDto.getMobile());  // Use mobile as username if provided
-            userEntity.setPassword(userRequestDto.getPassword());
-            userEntity.setUserType(UserType.REGISTERED);
-        } else {
-            // If both email and mobile are absent, it's a guest user
-            userEntity.setUserId(userRequestDto.getDeviceId());
-            userEntity.setUsername(userRequestDto.getDeviceId()); // Use deviceId as username for guest
-            userEntity.setUserType(UserType.GUEST);
+            if (!isNotEmpty(username)) {
+                username = userRequestDto.getEmail();
+            }
         }
 
-        // Set other fields from the request
+        // Set mobile if provided and use it as the username if none is provided
+        if (isNotEmpty(userRequestDto.getMobile())) {
+            userEntity.setMobile(userRequestDto.getMobile());
+            if (!isNotEmpty(username)) {
+                username = userRequestDto.getMobile();
+            }
+        }
+
+        // Set the username if it has been determined
+        if (isNotEmpty(username)) {
+            userEntity.setUsername(username);
+        }
+
+        // Hash the password before saving
+        userEntity.setPassword(PasswordHashingUtil.hashPassword(userRequestDto.getPassword()));
+
+        // Set user type as REGISTERED
+        userEntity.setUserType(UserType.REGISTERED);
+
+        // Set device ID and creation date
         userEntity.setDeviceId(userRequestDto.getDeviceId());
         userEntity.setCreatedAt(LocalDateTime.now());
 
         // Save the user entity to the database
         userRepository.saveUser(userEntity);
+
         return userEntity;
+    }
+
+    private boolean isNotEmpty(String value) {
+        return value != null && !value.isEmpty();
     }
 
     public UserEntity getUserByUserId(String userId) {

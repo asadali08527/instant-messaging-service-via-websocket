@@ -65,7 +65,7 @@ public class ChatSocket {
     public void onOpen(Session session, @PathParam("userId") String userId) {
         CompletableFuture.runAsync(() -> {
             try {
-                UserEntity user = authenticateUser(session, userId);
+                UserEntity user = authService.authenticateUser(session, userId);
                 if (user != null) {
                     sessions.put(userId, session);
                     chatService.notifyUserJoined(userId, session, sessions);
@@ -152,18 +152,6 @@ public class ChatSocket {
             session.close(new CloseReason(CloseReason.CloseCodes.CANNOT_ACCEPT, reason));
         } catch (IOException e) {
             logger.error("Error while closing session: {}", e.getMessage());
-        }
-    }
-
-    /**
-     * Authenticates the user based on token or guest login.
-     */
-    private UserEntity authenticateUser(Session session, String userId) {
-        String token = ChatUtil.extractToken(session.getQueryString());
-        if (token != null && !token.isEmpty()) {
-            return authService.verifyToken(token);
-        } else {
-            return authService.guestLogin(userId);
         }
     }
 }
